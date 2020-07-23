@@ -1,0 +1,14 @@
+{
+  "name": "nojs-maze",
+  "version": "1.0.0",
+  "description": "Proof of concept 3d Maze using no Javascript",
+  "main": "index.js",
+  "scripts": {
+    "start": "node make.js"
+  },
+  "author": "Chris Maltby",
+  "license": "MIT",
+  "dependencies": {
+    "ejs": "^3.1.3"
+  }
+}

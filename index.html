@@ -1,0 +1,2517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoJS Maze</title>
+    <style>
+
+body {
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 300;  
+}
+
+#maze-3d {
+  transform: translate3d(0,0,0);
+}
+        
+#goal {
+  position: absolute;
+  width: 100%;
+  background: rgba(0,0,0,0.2);
+  height: 100%;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  right: 0px;
+  color: #fff;
+  font-family: helvetica, sans;
+  font-size: 32px;
+  padding-top: 100px;
+  display: none;
+  text-align: center;
+}
+
+#goal .retry-btn {
+  background: #5b6ee1;
+  padding: 20px 40px;
+  border-radius: 4px;
+  border: 1px solid #3f3f74;
+  border-top:1px solid #639bff;
+  display: inline-block;
+}
+
+#controls {
+  position: relative;
+  top: 0px;
+  left: 0px;
+  background: #ccc;
+  width: 600px;
+  height: 80px;
+}
+
+#controls label {
+  box-sizing: border-box;
+  line-height: 80px;
+  width: 33.333333%;
+  height: 80px;
+  -webkit-user-select: none; /* Chrome/Safari */        
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE10+ */
+  -o-user-select: none;
+  user-select: none;  
+}
+            
+#controls .rotate-left-btn {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  background: #eee;
+  border: 1px solid #ccc;
+  display: none;
+  text-align: center;
+}
+
+#controls .rotate-right-btn {
+  position: absolute;
+  top: 0px;
+  left: 66.66666%;
+  background: #eee;
+  border: 1px solid #ccc;
+  display: none;
+  text-align: center;
+}
+
+#controls .move-btn {
+  position: absolute;
+  top: 0px;
+  left: 33.333333%;
+  background: #eee;
+  border: 1px solid #ccc;  
+  display: none;
+  text-align: center;
+}
+
+.container {
+    position: relative;
+    width: 600px;
+    height: 500px;
+    margin: 0;
+    transform-style: preserve-3d;
+    perspective: 600px;  
+    overflow: hidden;  
+    backface-visibility: hidden;
+}
+        
+.north {
+  transform: translate3d(0px,300px,300px) rotateX( 90deg ) rotateZ(180deg);
+}
+
+.east {
+  transform: translate3d(-300px,0px,300px) rotateY( 90deg ) rotateZ(270deg);
+}
+
+.west {
+  transform: translate3d(300px,0px,300px) rotateY( -90deg ) rotateZ(90deg);
+}
+
+.south {
+  transform: translate3d(0px,-300px,300px) rotateX( -90deg );
+}
+
+#tiles { 
+  transform: translate3d(0px,450px,0px) rotateX( 90deg ) rotateZ(180deg);
+  transform-style: preserve-3d;
+}
+            
+.tile {
+  position: absolute;
+  transform-style: preserve-3d;
+  width: 600px;
+  height: 600px;
+  margin-top:-300px;
+  background: blue;
+  /* background: url(img/stone.jpg); */
+  background: url(img/floor.png);
+  background-size: cover;
+}
+
+.wall {
+  transform-style: preserve-3d;
+  position: absolute;
+  width: 600px;
+  height: 600px;  
+  background: url(img/red_sand.png);
+  background-size: cover;
+  backface-visibility: hidden;   
+  -webkit-backface-visibility: hidden;
+}
+            
+.ceiling {
+  position: absolute;
+  transform:  translate3d(0px,0px,600px);  
+  width: 600px;
+  height: 600px;  
+  transform-style: preserve-3d;
+  background-color: #000;
+  /* background: url(img/stone.jpg); */
+  /* background: url(img/red_sand.png); */
+
+  background-size: cover;
+  image-rendering: pixelated;    
+}
+    
+.goal {
+  position: absolute;
+  transform:  translate3d(0px,0px,50px);  
+  width: 600px;
+  height: 600px;  
+  transform-style: preserve-3d;
+  background: url(img/portal.png);
+  background-size: cover;
+  image-rendering: pixelated;    
+  animation: rotate 20s infinite linear; 
+  animation-fill-mode: both; 
+}
+            
+@keyframes rotate {
+  0% { transform: translate3d(0px,0px,50px) rotateZ( 0deg ); }
+  100% { transform: translate3d(0px,0px,50px) rotateZ( 360deg )  }
+}
+
+
+.tile.x0-y0 {
+  transform: translate3d(0px,0px,0px);  
+}
+
+.tile.x0-y1 {
+  transform: translate3d(0px,600px,0px);  
+}
+
+.tile.x1-y1 {
+  transform: translate3d(-600px,600px,0px);  
+}
+
+
+    
+        
+        .tile.x0-y0 {
+            transform: translate3d(-0px,0px,0px);  
+        }
+    
+        
+        .tile.x0-y1 {
+            transform: translate3d(-0px,600px,0px);  
+        }
+    
+        
+        .tile.x0-y2 {
+            transform: translate3d(-0px,1200px,0px);  
+        }
+    
+        
+        .tile.x0-y3 {
+            transform: translate3d(-0px,1800px,0px);  
+        }
+    
+        
+        .tile.x0-y4 {
+            transform: translate3d(-0px,2400px,0px);  
+        }
+     
+
+    
+        
+        .tile.x1-y0 {
+            transform: translate3d(-600px,0px,0px);  
+        }
+    
+        
+        .tile.x1-y1 {
+            transform: translate3d(-600px,600px,0px);  
+        }
+    
+        
+        .tile.x1-y2 {
+            transform: translate3d(-600px,1200px,0px);  
+        }
+    
+        
+        .tile.x1-y3 {
+            transform: translate3d(-600px,1800px,0px);  
+        }
+    
+        
+        .tile.x1-y4 {
+            transform: translate3d(-600px,2400px,0px);  
+        }
+     
+
+    
+        
+        .tile.x2-y0 {
+            transform: translate3d(-1200px,0px,0px);  
+        }
+    
+        
+        .tile.x2-y1 {
+            transform: translate3d(-1200px,600px,0px);  
+        }
+    
+        
+        .tile.x2-y2 {
+            transform: translate3d(-1200px,1200px,0px);  
+        }
+    
+        
+        .tile.x2-y3 {
+            transform: translate3d(-1200px,1800px,0px);  
+        }
+    
+        
+        .tile.x2-y4 {
+            transform: translate3d(-1200px,2400px,0px);  
+        }
+     
+
+    
+        
+        .tile.x3-y0 {
+            transform: translate3d(-1800px,0px,0px);  
+        }
+    
+        
+        .tile.x3-y1 {
+            transform: translate3d(-1800px,600px,0px);  
+        }
+    
+        
+        .tile.x3-y2 {
+            transform: translate3d(-1800px,1200px,0px);  
+        }
+    
+        
+        .tile.x3-y3 {
+            transform: translate3d(-1800px,1800px,0px);  
+        }
+    
+        
+        .tile.x3-y4 {
+            transform: translate3d(-1800px,2400px,0px);  
+        }
+     
+
+    
+        
+        .tile.x4-y0 {
+            transform: translate3d(-2400px,0px,0px);  
+        }
+    
+        
+        .tile.x4-y1 {
+            transform: translate3d(-2400px,600px,0px);  
+        }
+    
+        
+        .tile.x4-y2 {
+            transform: translate3d(-2400px,1200px,0px);  
+        }
+    
+        
+        .tile.x4-y3 {
+            transform: translate3d(-2400px,1800px,0px);  
+        }
+    
+        
+        .tile.x4-y4 {
+            transform: translate3d(-2400px,2400px,0px);  
+        }
+     
+
+    
+        
+        .tile.x5-y0 {
+            transform: translate3d(-3000px,0px,0px);  
+        }
+    
+        
+        .tile.x5-y1 {
+            transform: translate3d(-3000px,600px,0px);  
+        }
+    
+        
+        .tile.x5-y2 {
+            transform: translate3d(-3000px,1200px,0px);  
+        }
+    
+        
+        .tile.x5-y3 {
+            transform: translate3d(-3000px,1800px,0px);  
+        }
+    
+        
+        .tile.x5-y4 {
+            transform: translate3d(-3000px,2400px,0px);  
+        }
+     
+
+    
+        
+        .tile.x6-y0 {
+            transform: translate3d(-3600px,0px,0px);  
+        }
+    
+        
+        .tile.x6-y1 {
+            transform: translate3d(-3600px,600px,0px);  
+        }
+    
+        
+        .tile.x6-y2 {
+            transform: translate3d(-3600px,1200px,0px);  
+        }
+    
+        
+        .tile.x6-y3 {
+            transform: translate3d(-3600px,1800px,0px);  
+        }
+    
+        
+        .tile.x6-y4 {
+            transform: translate3d(-3600px,2400px,0px);  
+        }
+     
+
+            
+#camera-position {
+  transform-style: preserve-3d;
+  transform: translate3d(0px,0px,0px); 
+  transform-style: preserve-3d;   
+  transition:  transform 0.3s linear;
+}
+
+#camera-offset {
+  transform-style: preserve-3d;
+  transform: translate3d(0px,100px,0px); 
+  transform-style: preserve-3d;   
+}
+
+#camera-rotate {
+  transform: translate3d(0px,0px,0px); 
+  transform-style: preserve-3d;  
+  animation-fill-mode: both;  
+}
+
+@keyframes rotate-demo {
+  0% { transform: rotateY( 0deg ); }
+  50% { transform: rotateY( 180deg )  }
+  100% { transform: rotateY( 0deg )  }
+}
+
+/* Rotation */
+
+#direction-w-n:checked + span #camera-rotate {
+  animation: rotate-w-n 0.3s 1 linear; 
+  animation-fill-mode: both; 
+}
+#direction-e-n:checked + span #camera-rotate {
+  animation: rotate-e-n 0.3s 1 linear; 
+  animation-fill-mode: both; 
+}
+
+#direction-w-s:checked + span #camera-rotate {
+  animation: rotate-w-s 0.3s 1 linear; 
+  animation-fill-mode: both; 
+}
+#direction-e-s:checked + span #camera-rotate {
+  animation: rotate-e-s 0.3s 1 linear; 
+  animation-fill-mode: both; 
+}
+
+#direction-n-e:checked + span #camera-rotate {
+  animation: rotate-n-e 0.3s 1 linear; 
+  animation-fill-mode: both; 
+}
+#direction-s-e:checked + span #camera-rotate {
+  animation: rotate-s-e 0.3s 1 linear; 
+  animation-fill-mode: both; 
+}
+
+#direction-n-w:checked + span #camera-rotate {
+  animation: rotate-n-w 0.3s 1 linear; 
+  animation-fill-mode: both; 
+}
+#direction-s-w:checked + span #camera-rotate {
+  animation: rotate-s-w 0.3s 1 linear; 
+  animation-fill-mode: both; 
+}
+
+@keyframes rotate-w-n {
+  0% { transform: rotateY( -90deg ); }
+  100% { transform: rotateY( 0deg )  }
+}
+@keyframes rotate-e-n {
+  0% { transform: rotateY( 90deg ); }
+  100% { transform: rotateY( 0deg )  }
+}
+
+@keyframes rotate-w-s {
+  0% { transform: rotateY( 270deg ); }
+  100% { transform: rotateY( 180deg )  }
+}
+@keyframes rotate-e-s {
+  0% { transform: rotateY( 90deg ); }
+  100% { transform: rotateY( 180deg )  }
+}
+
+@keyframes rotate-n-w {
+  0% { transform: rotateY( 0deg ); }
+  100% { transform: rotateY( -90deg )  }
+}
+@keyframes rotate-s-w {
+  0% { transform: rotateY( 180deg ); }
+  100% { transform: rotateY( 270deg )  }
+}
+
+@keyframes rotate-n-e {
+  0% { transform: rotateY( 0deg ); }
+  100% { transform: rotateY( 90deg )  }
+}
+@keyframes rotate-s-e {
+  0% { transform: rotateY( 180deg ); }
+  100% { transform: rotateY( 90deg )  }
+}
+
+#controls .rotate-left-btn.rotate-direction-n-w {
+  display: block;
+}
+#controls .rotate-right-btn.rotate-direction-n-e {
+  display: block;
+}
+
+/* North */
+#direction-w-n:checked + span .rotate-left-btn.rotate-direction-n-w,
+#direction-e-n:checked + span .rotate-left-btn.rotate-direction-n-w {
+  display: block;
+}
+#direction-w-n:checked + span .rotate-right-btn.rotate-direction-n-e,
+#direction-e-n:checked + span .rotate-right-btn.rotate-direction-n-e {
+  display: block;
+}
+
+/* East */
+#direction-n-e:checked + span .rotate-left-btn.rotate-direction-e-n,
+#direction-s-e:checked + span .rotate-left-btn.rotate-direction-e-n {
+  display: block;
+}
+#direction-n-e:checked + span .rotate-right-btn.rotate-direction-e-s,
+#direction-s-e:checked + span .rotate-right-btn.rotate-direction-e-s {
+  display: block;
+}
+
+/* West */
+#direction-n-w:checked + span .rotate-left-btn.rotate-direction-w-s,
+#direction-s-w:checked + span .rotate-left-btn.rotate-direction-w-s {
+  display: block;
+}
+#direction-n-w:checked + span .rotate-right-btn.rotate-direction-w-n,
+#direction-s-w:checked + span .rotate-right-btn.rotate-direction-w-n {
+  display: block;
+}
+
+/* South */
+#direction-w-s:checked + span .rotate-left-btn.rotate-direction-s-e,
+#direction-e-s:checked + span .rotate-left-btn.rotate-direction-s-e {
+  display: block;
+}
+#direction-w-s:checked + span .rotate-right-btn.rotate-direction-s-w,
+#direction-e-s:checked + span .rotate-right-btn.rotate-direction-s-w {
+  display: block;
+}
+
+/* Position */
+
+    
+        
+            
+                #pos-0-0:checked + span #camera-position {
+                    transform: translate3d(-0px,0px,0px);
+                }
+                 
+            
+    
+        
+            
+                #pos-0-1:checked + span #camera-position {
+                    transform: translate3d(-0px,0px,600px);
+                }
+                 
+            
+    
+        
+            
+                #pos-0-2:checked + span #camera-position {
+                    transform: translate3d(-0px,0px,1200px);
+                }
+                 
+            
+    
+        
+                 
+            
+    
+        
+                 
+            
+     
+
+    
+        
+            
+                #pos-1-0:checked + span #camera-position {
+                    transform: translate3d(-600px,0px,0px);
+                }
+                 
+            
+    
+        
+                 
+            
+    
+        
+            
+                #pos-1-2:checked + span #camera-position {
+                    transform: translate3d(-600px,0px,1200px);
+                }
+                 
+            
+    
+        
+            
+                #pos-1-3:checked + span #camera-position {
+                    transform: translate3d(-600px,0px,1800px);
+                }
+                 
+            
+    
+        
+                 
+            
+     
+
+    
+        
+            
+                #pos-2-0:checked + span #camera-position {
+                    transform: translate3d(-1200px,0px,0px);
+                }
+                 
+            
+    
+        
+            
+                #pos-2-1:checked + span #camera-position {
+                    transform: translate3d(-1200px,0px,600px);
+                }
+                 
+            
+    
+        
+            
+                #pos-2-2:checked + span #camera-position {
+                    transform: translate3d(-1200px,0px,1200px);
+                }
+                 
+            
+    
+        
+            
+                #pos-2-3:checked + span #camera-position {
+                    transform: translate3d(-1200px,0px,1800px);
+                }
+                 
+            
+    
+        
+                 
+            
+     
+
+    
+        
+                 
+            
+    
+        
+                 
+            
+    
+        
+                 
+            
+    
+        
+            
+                #pos-3-3:checked + span #camera-position {
+                    transform: translate3d(-1800px,0px,1800px);
+                }
+                 
+            
+    
+        
+                 
+            
+     
+
+    
+        
+            
+                #pos-4-0:checked + span #camera-position {
+                    transform: translate3d(-2400px,0px,0px);
+                }
+                 
+            
+    
+        
+            
+                #pos-4-1:checked + span #camera-position {
+                    transform: translate3d(-2400px,0px,600px);
+                }
+                 
+            
+    
+        
+            
+                #pos-4-2:checked + span #camera-position {
+                    transform: translate3d(-2400px,0px,1200px);
+                }
+                 
+            
+    
+        
+            
+                #pos-4-3:checked + span #camera-position {
+                    transform: translate3d(-2400px,0px,1800px);
+                }
+                 
+            
+    
+        
+                 
+            
+     
+
+    
+        
+                 
+            
+    
+        
+            
+                #pos-5-1:checked + span #camera-position {
+                    transform: translate3d(-3000px,0px,600px);
+                }
+                 
+            
+    
+        
+                 
+            
+    
+        
+                 
+            
+    
+        
+                 
+            
+     
+
+    
+        
+                 
+            
+    
+        
+            
+                #pos-6-1:checked + span #camera-position {
+                    transform: translate3d(-3600px,0px,600px);
+                }
+                 
+            
+    
+        
+            
+                #pos-6-2:checked + span #camera-position {
+                    transform: translate3d(-3600px,0px,1200px);
+                }
+                 
+            
+    
+        
+            
+                #pos-6-3:checked + span #camera-position {
+                    transform: translate3d(-3600px,0px,1800px);
+                }
+                 
+            
+    
+        
+            
+                #pos-6-4:checked + span #camera-position {
+                    transform: translate3d(-3600px,0px,2400px);
+                }
+                 
+            
+                #pos-6-4:checked + span #goal {
+                    display:block;
+                }
+                #pos-6-4:checked + span #controls {
+                    display:none;
+                }    
+            
+     
+
+
+/* Movement Buttons */
+
+
+    
+        
+        
+            #direction-w-n:checked + span #pos-0-0:checked + span .move-btn.pos-0-1,
+#direction-e-n:checked + span #pos-0-0:checked + span .move-btn.pos-0-1 {
+                display: block
+            }              
+        
+        
+        
+            #direction-n-e:checked + span #pos-0-0:checked + span .move-btn.pos-1-0,
+#direction-s-e:checked + span #pos-0-0:checked + span .move-btn.pos-1-0 {
+                display: block
+            }                 
+        
+                                                          
+    
+        
+        
+            #direction-w-n:checked + span #pos-0-1:checked + span .move-btn.pos-0-2,
+#direction-e-n:checked + span #pos-0-1:checked + span .move-btn.pos-0-2 {
+                display: block
+            }              
+        
+        
+            #direction-w-s:checked + span #pos-0-1:checked + span .move-btn.pos-0-0,
+#direction-e-s:checked + span #pos-0-1:checked + span .move-btn.pos-0-0 {
+                display: block
+            }             
+        
+        
+                                                          
+    
+        
+        
+        
+            #direction-w-s:checked + span #pos-0-2:checked + span .move-btn.pos-0-1,
+#direction-e-s:checked + span #pos-0-2:checked + span .move-btn.pos-0-1 {
+                display: block
+            }             
+        
+        
+            #direction-n-e:checked + span #pos-0-2:checked + span .move-btn.pos-1-2,
+#direction-s-e:checked + span #pos-0-2:checked + span .move-btn.pos-1-2 {
+                display: block
+            }                 
+        
+                                                          
+    
+        
+        
+        
+            #direction-w-s:checked + span #pos-0-3:checked + span .move-btn.pos-0-2,
+#direction-e-s:checked + span #pos-0-3:checked + span .move-btn.pos-0-2 {
+                display: block
+            }             
+        
+        
+            #direction-n-e:checked + span #pos-0-3:checked + span .move-btn.pos-1-3,
+#direction-s-e:checked + span #pos-0-3:checked + span .move-btn.pos-1-3 {
+                display: block
+            }                 
+        
+                                                          
+    
+        
+        
+        
+        
+                                                          
+     
+
+    
+        
+        
+        
+        
+            #direction-n-e:checked + span #pos-1-0:checked + span .move-btn.pos-2-0,
+#direction-s-e:checked + span #pos-1-0:checked + span .move-btn.pos-2-0 {
+                display: block
+            }                 
+        
+        
+            #direction-n-w:checked + span #pos-1-0:checked + span .move-btn.pos-0-0,
+#direction-s-w:checked + span #pos-1-0:checked + span .move-btn.pos-0-0 {
+                display: block
+            }                   
+                                                          
+    
+        
+        
+            #direction-w-n:checked + span #pos-1-1:checked + span .move-btn.pos-1-2,
+#direction-e-n:checked + span #pos-1-1:checked + span .move-btn.pos-1-2 {
+                display: block
+            }              
+        
+        
+            #direction-w-s:checked + span #pos-1-1:checked + span .move-btn.pos-1-0,
+#direction-e-s:checked + span #pos-1-1:checked + span .move-btn.pos-1-0 {
+                display: block
+            }             
+        
+        
+            #direction-n-e:checked + span #pos-1-1:checked + span .move-btn.pos-2-1,
+#direction-s-e:checked + span #pos-1-1:checked + span .move-btn.pos-2-1 {
+                display: block
+            }                 
+        
+        
+            #direction-n-w:checked + span #pos-1-1:checked + span .move-btn.pos-0-1,
+#direction-s-w:checked + span #pos-1-1:checked + span .move-btn.pos-0-1 {
+                display: block
+            }                   
+                                                          
+    
+        
+        
+            #direction-w-n:checked + span #pos-1-2:checked + span .move-btn.pos-1-3,
+#direction-e-n:checked + span #pos-1-2:checked + span .move-btn.pos-1-3 {
+                display: block
+            }              
+        
+        
+        
+            #direction-n-e:checked + span #pos-1-2:checked + span .move-btn.pos-2-2,
+#direction-s-e:checked + span #pos-1-2:checked + span .move-btn.pos-2-2 {
+                display: block
+            }                 
+        
+        
+            #direction-n-w:checked + span #pos-1-2:checked + span .move-btn.pos-0-2,
+#direction-s-w:checked + span #pos-1-2:checked + span .move-btn.pos-0-2 {
+                display: block
+            }                   
+                                                          
+    
+        
+        
+        
+            #direction-w-s:checked + span #pos-1-3:checked + span .move-btn.pos-1-2,
+#direction-e-s:checked + span #pos-1-3:checked + span .move-btn.pos-1-2 {
+                display: block
+            }             
+        
+        
+            #direction-n-e:checked + span #pos-1-3:checked + span .move-btn.pos-2-3,
+#direction-s-e:checked + span #pos-1-3:checked + span .move-btn.pos-2-3 {
+                display: block
+            }                 
+        
+                                                          
+    
+        
+        
+        
+            #direction-w-s:checked + span #pos-1-4:checked + span .move-btn.pos-1-3,
+#direction-e-s:checked + span #pos-1-4:checked + span .move-btn.pos-1-3 {
+                display: block
+            }             
+        
+        
+                                                          
+     
+
+    
+        
+        
+            #direction-w-n:checked + span #pos-2-0:checked + span .move-btn.pos-2-1,
+#direction-e-n:checked + span #pos-2-0:checked + span .move-btn.pos-2-1 {
+                display: block
+            }              
+        
+        
+        
+        
+            #direction-n-w:checked + span #pos-2-0:checked + span .move-btn.pos-1-0,
+#direction-s-w:checked + span #pos-2-0:checked + span .move-btn.pos-1-0 {
+                display: block
+            }                   
+                                                          
+    
+        
+        
+            #direction-w-n:checked + span #pos-2-1:checked + span .move-btn.pos-2-2,
+#direction-e-n:checked + span #pos-2-1:checked + span .move-btn.pos-2-2 {
+                display: block
+            }              
+        
+        
+            #direction-w-s:checked + span #pos-2-1:checked + span .move-btn.pos-2-0,
+#direction-e-s:checked + span #pos-2-1:checked + span .move-btn.pos-2-0 {
+                display: block
+            }             
+        
+        
+                                                          
+    
+        
+        
+            #direction-w-n:checked + span #pos-2-2:checked + span .move-btn.pos-2-3,
+#direction-e-n:checked + span #pos-2-2:checked + span .move-btn.pos-2-3 {
+                display: block
+            }              
+        
+        
+            #direction-w-s:checked + span #pos-2-2:checked + span .move-btn.pos-2-1,
+#direction-e-s:checked + span #pos-2-2:checked + span .move-btn.pos-2-1 {
+                display: block
+            }             
+        
+        
+        
+            #direction-n-w:checked + span #pos-2-2:checked + span .move-btn.pos-1-2,
+#direction-s-w:checked + span #pos-2-2:checked + span .move-btn.pos-1-2 {
+                display: block
+            }                   
+                                                          
+    
+        
+        
+        
+            #direction-w-s:checked + span #pos-2-3:checked + span .move-btn.pos-2-2,
+#direction-e-s:checked + span #pos-2-3:checked + span .move-btn.pos-2-2 {
+                display: block
+            }             
+        
+        
+            #direction-n-e:checked + span #pos-2-3:checked + span .move-btn.pos-3-3,
+#direction-s-e:checked + span #pos-2-3:checked + span .move-btn.pos-3-3 {
+                display: block
+            }                 
+        
+        
+            #direction-n-w:checked + span #pos-2-3:checked + span .move-btn.pos-1-3,
+#direction-s-w:checked + span #pos-2-3:checked + span .move-btn.pos-1-3 {
+                display: block
+            }                   
+                                                          
+    
+        
+        
+        
+            #direction-w-s:checked + span #pos-2-4:checked + span .move-btn.pos-2-3,
+#direction-e-s:checked + span #pos-2-4:checked + span .move-btn.pos-2-3 {
+                display: block
+            }             
+        
+        
+                                                          
+     
+
+    
+        
+        
+        
+        
+            #direction-n-e:checked + span #pos-3-0:checked + span .move-btn.pos-4-0,
+#direction-s-e:checked + span #pos-3-0:checked + span .move-btn.pos-4-0 {
+                display: block
+            }                 
+        
+        
+            #direction-n-w:checked + span #pos-3-0:checked + span .move-btn.pos-2-0,
+#direction-s-w:checked + span #pos-3-0:checked + span .move-btn.pos-2-0 {
+                display: block
+            }                   
+                                                          
+    
+        
+        
+        
+        
+            #direction-n-e:checked + span #pos-3-1:checked + span .move-btn.pos-4-1,
+#direction-s-e:checked + span #pos-3-1:checked + span .move-btn.pos-4-1 {
+                display: block
+            }                 
+        
+        
+            #direction-n-w:checked + span #pos-3-1:checked + span .move-btn.pos-2-1,
+#direction-s-w:checked + span #pos-3-1:checked + span .move-btn.pos-2-1 {
+                display: block
+            }                   
+                                                          
+    
+        
+        
+            #direction-w-n:checked + span #pos-3-2:checked + span .move-btn.pos-3-3,
+#direction-e-n:checked + span #pos-3-2:checked + span .move-btn.pos-3-3 {
+                display: block
+            }              
+        
+        
+        
+            #direction-n-e:checked + span #pos-3-2:checked + span .move-btn.pos-4-2,
+#direction-s-e:checked + span #pos-3-2:checked + span .move-btn.pos-4-2 {
+                display: block
+            }                 
+        
+        
+            #direction-n-w:checked + span #pos-3-2:checked + span .move-btn.pos-2-2,
+#direction-s-w:checked + span #pos-3-2:checked + span .move-btn.pos-2-2 {
+                display: block
+            }                   
+                                                          
+    
+        
+        
+        
+        
+            #direction-n-e:checked + span #pos-3-3:checked + span .move-btn.pos-4-3,
+#direction-s-e:checked + span #pos-3-3:checked + span .move-btn.pos-4-3 {
+                display: block
+            }                 
+        
+        
+            #direction-n-w:checked + span #pos-3-3:checked + span .move-btn.pos-2-3,
+#direction-s-w:checked + span #pos-3-3:checked + span .move-btn.pos-2-3 {
+                display: block
+            }                   
+                                                          
+    
+        
+        
+        
+            #direction-w-s:checked + span #pos-3-4:checked + span .move-btn.pos-3-3,
+#direction-e-s:checked + span #pos-3-4:checked + span .move-btn.pos-3-3 {
+                display: block
+            }             
+        
+        
+                                                          
+     
+
+    
+        
+        
+            #direction-w-n:checked + span #pos-4-0:checked + span .move-btn.pos-4-1,
+#direction-e-n:checked + span #pos-4-0:checked + span .move-btn.pos-4-1 {
+                display: block
+            }              
+        
+        
+        
+                                                          
+    
+        
+        
+            #direction-w-n:checked + span #pos-4-1:checked + span .move-btn.pos-4-2,
+#direction-e-n:checked + span #pos-4-1:checked + span .move-btn.pos-4-2 {
+                display: block
+            }              
+        
+        
+            #direction-w-s:checked + span #pos-4-1:checked + span .move-btn.pos-4-0,
+#direction-e-s:checked + span #pos-4-1:checked + span .move-btn.pos-4-0 {
+                display: block
+            }             
+        
+        
+            #direction-n-e:checked + span #pos-4-1:checked + span .move-btn.pos-5-1,
+#direction-s-e:checked + span #pos-4-1:checked + span .move-btn.pos-5-1 {
+                display: block
+            }                 
+        
+                                                          
+    
+        
+        
+            #direction-w-n:checked + span #pos-4-2:checked + span .move-btn.pos-4-3,
+#direction-e-n:checked + span #pos-4-2:checked + span .move-btn.pos-4-3 {
+                display: block
+            }              
+        
+        
+            #direction-w-s:checked + span #pos-4-2:checked + span .move-btn.pos-4-1,
+#direction-e-s:checked + span #pos-4-2:checked + span .move-btn.pos-4-1 {
+                display: block
+            }             
+        
+        
+                                                          
+    
+        
+        
+        
+            #direction-w-s:checked + span #pos-4-3:checked + span .move-btn.pos-4-2,
+#direction-e-s:checked + span #pos-4-3:checked + span .move-btn.pos-4-2 {
+                display: block
+            }             
+        
+        
+        
+            #direction-n-w:checked + span #pos-4-3:checked + span .move-btn.pos-3-3,
+#direction-s-w:checked + span #pos-4-3:checked + span .move-btn.pos-3-3 {
+                display: block
+            }                   
+                                                          
+    
+        
+        
+        
+            #direction-w-s:checked + span #pos-4-4:checked + span .move-btn.pos-4-3,
+#direction-e-s:checked + span #pos-4-4:checked + span .move-btn.pos-4-3 {
+                display: block
+            }             
+        
+        
+                                                          
+     
+
+    
+        
+        
+            #direction-w-n:checked + span #pos-5-0:checked + span .move-btn.pos-5-1,
+#direction-e-n:checked + span #pos-5-0:checked + span .move-btn.pos-5-1 {
+                display: block
+            }              
+        
+        
+        
+        
+            #direction-n-w:checked + span #pos-5-0:checked + span .move-btn.pos-4-0,
+#direction-s-w:checked + span #pos-5-0:checked + span .move-btn.pos-4-0 {
+                display: block
+            }                   
+                                                          
+    
+        
+        
+        
+        
+            #direction-n-e:checked + span #pos-5-1:checked + span .move-btn.pos-6-1,
+#direction-s-e:checked + span #pos-5-1:checked + span .move-btn.pos-6-1 {
+                display: block
+            }                 
+        
+        
+            #direction-n-w:checked + span #pos-5-1:checked + span .move-btn.pos-4-1,
+#direction-s-w:checked + span #pos-5-1:checked + span .move-btn.pos-4-1 {
+                display: block
+            }                   
+                                                          
+    
+        
+        
+        
+            #direction-w-s:checked + span #pos-5-2:checked + span .move-btn.pos-5-1,
+#direction-e-s:checked + span #pos-5-2:checked + span .move-btn.pos-5-1 {
+                display: block
+            }             
+        
+        
+            #direction-n-e:checked + span #pos-5-2:checked + span .move-btn.pos-6-2,
+#direction-s-e:checked + span #pos-5-2:checked + span .move-btn.pos-6-2 {
+                display: block
+            }                 
+        
+        
+            #direction-n-w:checked + span #pos-5-2:checked + span .move-btn.pos-4-2,
+#direction-s-w:checked + span #pos-5-2:checked + span .move-btn.pos-4-2 {
+                display: block
+            }                   
+                                                          
+    
+        
+        
+        
+        
+            #direction-n-e:checked + span #pos-5-3:checked + span .move-btn.pos-6-3,
+#direction-s-e:checked + span #pos-5-3:checked + span .move-btn.pos-6-3 {
+                display: block
+            }                 
+        
+        
+            #direction-n-w:checked + span #pos-5-3:checked + span .move-btn.pos-4-3,
+#direction-s-w:checked + span #pos-5-3:checked + span .move-btn.pos-4-3 {
+                display: block
+            }                   
+                                                          
+    
+        
+        
+        
+        
+            #direction-n-e:checked + span #pos-5-4:checked + span .move-btn.pos-6-4,
+#direction-s-e:checked + span #pos-5-4:checked + span .move-btn.pos-6-4 {
+                display: block
+            }                 
+        
+                                                          
+     
+
+    
+        
+        
+            #direction-w-n:checked + span #pos-6-0:checked + span .move-btn.pos-6-1,
+#direction-e-n:checked + span #pos-6-0:checked + span .move-btn.pos-6-1 {
+                display: block
+            }              
+        
+        
+        
+                                                          
+    
+        
+        
+            #direction-w-n:checked + span #pos-6-1:checked + span .move-btn.pos-6-2,
+#direction-e-n:checked + span #pos-6-1:checked + span .move-btn.pos-6-2 {
+                display: block
+            }              
+        
+        
+        
+        
+            #direction-n-w:checked + span #pos-6-1:checked + span .move-btn.pos-5-1,
+#direction-s-w:checked + span #pos-6-1:checked + span .move-btn.pos-5-1 {
+                display: block
+            }                   
+                                                          
+    
+        
+        
+            #direction-w-n:checked + span #pos-6-2:checked + span .move-btn.pos-6-3,
+#direction-e-n:checked + span #pos-6-2:checked + span .move-btn.pos-6-3 {
+                display: block
+            }              
+        
+        
+            #direction-w-s:checked + span #pos-6-2:checked + span .move-btn.pos-6-1,
+#direction-e-s:checked + span #pos-6-2:checked + span .move-btn.pos-6-1 {
+                display: block
+            }             
+        
+        
+                                                          
+    
+        
+        
+            #direction-w-n:checked + span #pos-6-3:checked + span .move-btn.pos-6-4,
+#direction-e-n:checked + span #pos-6-3:checked + span .move-btn.pos-6-4 {
+                display: block
+            }              
+        
+        
+            #direction-w-s:checked + span #pos-6-3:checked + span .move-btn.pos-6-2,
+#direction-e-s:checked + span #pos-6-3:checked + span .move-btn.pos-6-2 {
+                display: block
+            }             
+        
+        
+                                                          
+    
+        
+        
+        
+            #direction-w-s:checked + span #pos-6-4:checked + span .move-btn.pos-6-3,
+#direction-e-s:checked + span #pos-6-4:checked + span .move-btn.pos-6-3 {
+                display: block
+            }             
+        
+        
+                                                          
+     
+
+
+#direction-w-n:checked + span #pos-0-0:checked + span .move-btn.pos-0-1,
+#direction-e-n:checked + span #pos-0-0:checked + span .move-btn.pos-0-1 {
+  display: block
+}
+
+#direction-n-e:checked + span #pos-0-1:checked + span .move-btn.pos-1-1,
+#direction-s-e:checked + span #pos-0-1:checked + span .move-btn.pos-1-1 {
+  display: block
+}
+
+#direction-w-s:checked + span #pos-0-1:checked + span .move-btn.pos-0-0,
+#direction-e-s:checked + span #pos-0-1:checked + span .move-btn.pos-0-0 {
+  display: block
+}
+
+#direction-n-w:checked + span #pos-1-1:checked + span .move-btn.pos-0-1,
+#direction-s-w:checked + span #pos-1-1:checked + span .move-btn.pos-0-1 {
+  display: block
+}
+
+@media handheld, only screen and (-webkit-min-device-pixel-ratio: 3) and (max-width: 1080px), screen and (max-width: 480px) {
+  .container {
+      transform: scale(0.5) translate3d(-50%,-50%,0);
+      margin-bottom: -250px;
+      margin-right: -300px;
+  }
+
+  #controls {
+    width: 300px;
+  }
+}
+            
+</style>
+
+</head>
+<body>
+  <h1>No Javascript 3D Maze Game Proof of Concept</h1>
+  <div id="maze-3d">
+    <h2>Direction Inputs</h2>
+    <input type="radio" name="direction" id="direction-n-w" style=""/>
+    <span>
+    <input type="radio" name="direction" id="direction-n-e" style=""/>
+    <span>
+    <input type="radio" name="direction" id="direction-s-w" style=""/>
+    <span>
+    <input type="radio" name="direction" id="direction-s-e" style=""/>
+    <span>
+    <input type="radio" name="direction" id="direction-w-n" checked="true" style=""/>
+    <span>
+    <input type="radio" name="direction" id="direction-w-s" style=""/>
+    <span>
+    <input type="radio" name="direction" id="direction-e-n" style=""/>
+    <span>
+    <input type="radio" name="direction" id="direction-e-s" style=""/>
+    <span>
+    <h2>Location Inputs</h2>
+    
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-0-0"
+                checked="true"
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-0-1"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-0-2"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-0-3"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-0-4"
+                
+                style=""
+            />
+            <span>        
+         
+    
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-1-0"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-1-1"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-1-2"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-1-3"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-1-4"
+                
+                style=""
+            />
+            <span>        
+         
+    
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-2-0"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-2-1"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-2-2"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-2-3"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-2-4"
+                
+                style=""
+            />
+            <span>        
+         
+    
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-3-0"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-3-1"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-3-2"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-3-3"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-3-4"
+                
+                style=""
+            />
+            <span>        
+         
+    
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-4-0"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-4-1"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-4-2"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-4-3"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-4-4"
+                
+                style=""
+            />
+            <span>        
+         
+    
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-5-0"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-5-1"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-5-2"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-5-3"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-5-4"
+                
+                style=""
+            />
+            <span>        
+         
+    
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-6-0"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-6-1"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-6-2"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-6-3"
+                
+                style=""
+            />
+            <span>        
+        
+                    
+            <input
+                type="radio"
+                name="position"
+                id="pos-6-4"
+                
+                style=""
+            />
+            <span>        
+         
+    
+    
+    <h2>Game Window</h2>
+    <section id="red" class="container">
+        <div id="camera-offset">
+        <div id="camera-rotate">
+        <div id="camera-position">
+      
+        <div id="tiles">
+            
+                
+                    
+                    <div class="tile x0-y0">
+                        <div class="ceiling"></div>
+                        
+                        
+                            <div  class="wall south"></div>                    
+                        
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x0-y1">
+                        <div class="ceiling"></div>
+                        
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x0-y2">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x0-y3">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x0-y4">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                            <div  class="wall south"></div>                    
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                 
+            
+                
+                    
+                    <div class="tile x1-y0">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                            <div  class="wall south"></div>                    
+                        
+                        
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x1-y1">
+                        <div class="ceiling"></div>
+                        
+                        
+                        
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x1-y2">
+                        <div class="ceiling"></div>
+                        
+                        
+                            <div  class="wall south"></div>                    
+                        
+                        
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x1-y3">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x1-y4">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                 
+            
+                
+                    
+                    <div class="tile x2-y0">
+                        <div class="ceiling"></div>
+                        
+                        
+                            <div  class="wall south"></div>                    
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x2-y1">
+                        <div class="ceiling"></div>
+                        
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x2-y2">
+                        <div class="ceiling"></div>
+                        
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x2-y3">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                        
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x2-y4">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                 
+            
+                
+                    
+                    <div class="tile x3-y0">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                            <div  class="wall south"></div>                    
+                        
+                        
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x3-y1">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                            <div  class="wall south"></div>                    
+                        
+                        
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x3-y2">
+                        <div class="ceiling"></div>
+                        
+                        
+                            <div  class="wall south"></div>                    
+                        
+                        
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x3-y3">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                            <div  class="wall south"></div>                    
+                        
+                        
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x3-y4">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                 
+            
+                
+                    
+                    <div class="tile x4-y0">
+                        <div class="ceiling"></div>
+                        
+                        
+                            <div  class="wall south"></div>                    
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x4-y1">
+                        <div class="ceiling"></div>
+                        
+                        
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x4-y2">
+                        <div class="ceiling"></div>
+                        
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x4-y3">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x4-y4">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                 
+            
+                
+                    
+                    <div class="tile x5-y0">
+                        <div class="ceiling"></div>
+                        
+                        
+                            <div  class="wall south"></div>                    
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x5-y1">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                            <div  class="wall south"></div>                    
+                        
+                        
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x5-y2">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                        
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x5-y3">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                            <div  class="wall south"></div>                    
+                        
+                        
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x5-y4">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                            <div  class="wall south"></div>                    
+                        
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                 
+            
+                
+                    
+                    <div class="tile x6-y0">
+                        <div class="ceiling"></div>
+                        
+                        
+                            <div  class="wall south"></div>                    
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x6-y1">
+                        <div class="ceiling"></div>
+                        
+                        
+                            <div  class="wall south"></div>                    
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x6-y2">
+                        <div class="ceiling"></div>
+                        
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x6-y3">
+                        <div class="ceiling"></div>
+                        
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                                                                          
+                    </div>
+                
+                    
+                    <div class="tile x6-y4">
+                        <div class="ceiling"></div>
+                        
+                            <div  class="wall north"></div>                    
+                        
+                        
+                        
+                            <div  class="wall east"></div>                    
+                        
+                        
+                            <div  class="wall west"></div>                    
+                                
+                        
+                            <div class="goal"></div>
+                                                                          
+                    </div>
+                 
+            
+        </div>
+        
+        </div>
+        </div>
+        </div>
+
+        <div id="goal">
+            <h1>Success!</h1>
+            <label class="retry-btn" for="pos-0-0">Play Again</label>
+        </div>    
+    </section>
+        
+    <div id="controls">
+        <label class="rotate-left-btn rotate-direction-n-w" for="direction-n-w">Left</label>
+        <label class="rotate-left-btn rotate-direction-s-e" for="direction-s-e">Left</label>
+        <label class="rotate-left-btn rotate-direction-w-s" for="direction-w-s">Left</label>
+        <label class="rotate-left-btn rotate-direction-e-n" for="direction-e-n">Left</label>
+      
+        <label class="rotate-right-btn rotate-direction-n-e" for="direction-n-e">Right</label>
+        <label class="rotate-right-btn rotate-direction-s-w" for="direction-s-w">Right</label>
+        <label class="rotate-right-btn rotate-direction-w-n" for="direction-w-n">Right</label>
+        <label class="rotate-right-btn rotate-direction-e-s" for="direction-e-s">Right</label>
+      
+        
+            
+                
+                <label class="move-btn pos-0-0" for="pos-0-0">Forward</label>
+            
+                
+                <label class="move-btn pos-0-1" for="pos-0-1">Forward</label>
+            
+                
+                <label class="move-btn pos-0-2" for="pos-0-2">Forward</label>
+            
+                
+                <label class="move-btn pos-0-3" for="pos-0-3">Forward</label>
+            
+                
+                <label class="move-btn pos-0-4" for="pos-0-4">Forward</label>
+             
+        
+            
+                
+                <label class="move-btn pos-1-0" for="pos-1-0">Forward</label>
+            
+                
+                <label class="move-btn pos-1-1" for="pos-1-1">Forward</label>
+            
+                
+                <label class="move-btn pos-1-2" for="pos-1-2">Forward</label>
+            
+                
+                <label class="move-btn pos-1-3" for="pos-1-3">Forward</label>
+            
+                
+                <label class="move-btn pos-1-4" for="pos-1-4">Forward</label>
+             
+        
+            
+                
+                <label class="move-btn pos-2-0" for="pos-2-0">Forward</label>
+            
+                
+                <label class="move-btn pos-2-1" for="pos-2-1">Forward</label>
+            
+                
+                <label class="move-btn pos-2-2" for="pos-2-2">Forward</label>
+            
+                
+                <label class="move-btn pos-2-3" for="pos-2-3">Forward</label>
+            
+                
+                <label class="move-btn pos-2-4" for="pos-2-4">Forward</label>
+             
+        
+            
+                
+                <label class="move-btn pos-3-0" for="pos-3-0">Forward</label>
+            
+                
+                <label class="move-btn pos-3-1" for="pos-3-1">Forward</label>
+            
+                
+                <label class="move-btn pos-3-2" for="pos-3-2">Forward</label>
+            
+                
+                <label class="move-btn pos-3-3" for="pos-3-3">Forward</label>
+            
+                
+                <label class="move-btn pos-3-4" for="pos-3-4">Forward</label>
+             
+        
+            
+                
+                <label class="move-btn pos-4-0" for="pos-4-0">Forward</label>
+            
+                
+                <label class="move-btn pos-4-1" for="pos-4-1">Forward</label>
+            
+                
+                <label class="move-btn pos-4-2" for="pos-4-2">Forward</label>
+            
+                
+                <label class="move-btn pos-4-3" for="pos-4-3">Forward</label>
+            
+                
+                <label class="move-btn pos-4-4" for="pos-4-4">Forward</label>
+             
+        
+            
+                
+                <label class="move-btn pos-5-0" for="pos-5-0">Forward</label>
+            
+                
+                <label class="move-btn pos-5-1" for="pos-5-1">Forward</label>
+            
+                
+                <label class="move-btn pos-5-2" for="pos-5-2">Forward</label>
+            
+                
+                <label class="move-btn pos-5-3" for="pos-5-3">Forward</label>
+            
+                
+                <label class="move-btn pos-5-4" for="pos-5-4">Forward</label>
+             
+        
+            
+                
+                <label class="move-btn pos-6-0" for="pos-6-0">Forward</label>
+            
+                
+                <label class="move-btn pos-6-1" for="pos-6-1">Forward</label>
+            
+                
+                <label class="move-btn pos-6-2" for="pos-6-2">Forward</label>
+            
+                
+                <label class="move-btn pos-6-3" for="pos-6-3">Forward</label>
+            
+                
+                <label class="move-btn pos-6-4" for="pos-6-4">Forward</label>
+             
+          
+    </div>
+        
+    
+        
+            </span>
+        
+            </span>
+        
+            </span>
+        
+            </span>
+        
+            </span>
+         
+    
+        
+            </span>
+        
+            </span>
+        
+            </span>
+        
+            </span>
+        
+            </span>
+         
+    
+        
+            </span>
+        
+            </span>
+        
+            </span>
+        
+            </span>
+        
+            </span>
+         
+    
+        
+            </span>
+        
+            </span>
+        
+            </span>
+        
+            </span>
+        
+            </span>
+         
+    
+        
+            </span>
+        
+            </span>
+        
+            </span>
+        
+            </span>
+        
+            </span>
+         
+    
+        
+            </span>
+        
+            </span>
+        
+            </span>
+        
+            </span>
+        
+            </span>
+         
+    
+        
+            </span>
+        
+            </span>
+        
+            </span>
+        
+            </span>
+        
+            </span>
+         
+      
+        
+  </div>
+</body>
+</html>
