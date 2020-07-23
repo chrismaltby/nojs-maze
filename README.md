@@ -4,6 +4,10 @@ Twitter: [@maltby](https://www.twitter.com/maltby)
 
 Proof of concept 3d Maze using no Javascript. (Except to generate maze with an EJS template)
 
+https://chrismaltby.github.io/nojs-maze/
+
+![Game Preview](img/preview.png)
+
 ## Why
 
 Initially this was conceived as a game that could be sent as a weekly HTML email to a list of subscribers, turns out to crash a lot of email clients.
