@@ -47,7 +47,7 @@ npm start
 
 ## Notes
 
-I got my maths wrong and have North facing to the right so the entire map is rotated 90 degrees clockwise from the JSON data.
+I got my maths wrong and have North facing to the right so the entire map is rotated 90 degrees from the JSON data.
 
 ## While you're here
 
